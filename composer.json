@@ -1,0 +1,5 @@
+{
+    "require": {
+        "botman/driver-slack": "^2.1"
+    }
+}
