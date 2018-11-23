@@ -10,6 +10,11 @@ include("vars.php");
 // Load driver
 DriverManager::loadDriver(SlackRTMDriver::class);
 
+const MALE = 'M';
+const FEMALE = 'F';
+const GRAMS = 'gr';
+const KILOGRAMS = 'kg';
+
 $loop = Factory::create();
 $botman = BotManFactory::createForRTM([
     'slack' => [
@@ -31,10 +36,10 @@ function calculate($bot, $pros, $quantity){
   $u = $bot->getUser()->getUsername();
   
   if (!isset($users[$u]["lastupdated"])) { $users[$u]["lastupdated"] = time(); }
-  if (!isset($users[$u]["gr"])) { $users[$u]["gr"] = 0; }
+  if (!isset($users[$u][GRAMS])) { $users[$u][GRAMS] = 0; }
   
-  $users[$u]["gr"] += ($pros * $quantity);
-  $bot->reply('Grammoja veressä '.$users[$u]["gr"]);
+  $users[$u][GRAMS] += ($pros * $quantity);
+  $bot->reply('Grammoja veressä '.$users[$u][GRAMS]);
   timeToPostTheStats($bot);
 }
 
@@ -65,19 +70,19 @@ function promilles($bot){
   $stats = array();
   if (!empty($users)) {
     foreach ($users AS $name => $u) {
-      if (isset($u["kg"])) {
+      if (isset($u[KILOGRAMS])) {
         $hours_past = (($now - $u["lastupdated"])/3600);
         $users[$name]["lastupdated"] = time();
         
-        $factor = ($u["sex"] == "N") ? WOMAN_FACTOR : 1;
-        $blood = amountOfBlood($u["kg"]);
+        $factor = ($u["sex"] == FEMALE) ? WOMAN_FACTOR : 1;
+        $blood = amountOfBlood($u[KILOGRAMS]);
         // body burns 1 gram of alcohol for every 10 kilos every hour
-        $users[$name]["gr"] -= ($f*($u["kg"]/10)*$hours_past);
+        $users[$name][GRAMS] -= ($f*($u[KILOGRAMS]/10)*$hours_past);
         
-        $promills = $u["gr"]/$blood/10;
+        $promills = $u[GRAMS]/$blood/10;
         // user has no grams, dont show his/her result
-        if ($users[$name]["gr"] < 0) {
-          $users[$name]["gr"] = 0;
+        if ($users[$name][GRAMS] < 0) {
+          $users[$name][GRAMS] = 0;
         } else { // append to array
           $stats[$name] = $promills;
         }
@@ -91,7 +96,7 @@ function promilles($bot){
       $stat = "";
       arsort($stats);
       foreach ($stats AS $n => $p) {
-        $stat .= $n." ".round($p,2)."‰\n";
+        $stat .= $n." ".round($p, 2)."‰\n";
       }
       $bot->say($stat, POST_STATS_TO_CHANNEL);
       // $bot->reply($stat); // debug
@@ -107,15 +112,15 @@ function promilles($bot){
 $botman->hears('{kg}kg', function($bot, $kg) {
   global $users;
   $u = $bot->getUser()->getUsername();
-  $users[$u]["kg"] = $kg;
-  $bot->reply('Painosi '.$kg." kg");
+  $users[$u][KILOGRAMS] = $kg;
+  $bot->reply('Massasi '.$kg." kg");
   timeToPostTheStats($bot);
 });
 
 $botman->hears('NAINEN', function($bot) {
   global $users;
   $u = $bot->getUser()->getUsername();
-  $users[$u]["sex"] = 'F';
+  $users[$u]["sex"] = FEMALE;
   $bot->reply('Sukupuolesi '.$users[$u]["sex"]);
   timeToPostTheStats($bot);
 });
@@ -123,31 +128,28 @@ $botman->hears('NAINEN', function($bot) {
 $botman->hears('MIES', function($bot) {
   global $users;
   $u = $bot->getUser()->getUsername();
-  $users[$u]["sex"] = 'M';
+  $users[$u]["sex"] = MALE;
   $bot->reply('Sukupuolesi '.$users[$u]["sex"]);
   timeToPostTheStats($bot);
 });
 
 $botman->hears('APUA', function($bot) {
   global $users;
-  $bot->reply("Aseta ensin sukupuoli ja paino ja ala sitten juomaan.\nNAINEN\nMIES\n{kg}kg\n\nolut {dl}\naolut {dl}\nsiideri {dl}\nlonkero {dl}\nviini {cl}\ntiukka\njekku\nkossu\njuoma {dl} {pros}\n");
+  $bot->reply("Aseta ensin sukupuoli ja massa ja ryhdy juomaan.\nNAINEN\nMIES\n{kg}kg\n\nolut {dl}\naolut {dl}\nsiideri {dl}\nlonkero {dl}\nviini {cl}\ntiukka\njekku\nkossu\njuoma {dl} {pros}\n");
   timeToPostTheStats($bot);
 });
 
-
 $botman->hears('olut {dl}', function($bot, $dl) { calculate($bot, 4.5, $dl); });
-$botman->hears('aolut {dl}', function($bot, $dl) { calculate($bot, 5.5, $dl); });
+$botman->hears('aolut {dl}', function($bot, $dl) { calculate($bot, 5.2, $dl); });
 $botman->hears('siideri {dl}', function($bot, $dl) { calculate($bot, 4.5, $dl); });
 $botman->hears('lonkero {dl}', function($bot, $dl) { calculate($bot, 5.5, $dl); });
 $botman->hears('juoma {dl} {pros}', function($bot, $pros, $dl) { calculate($bot, $pros, $dl); });
 $botman->hears('viini {cl}', function($bot, $cl) { calculate($bot, 12, ($cl/10)); });
 $botman->hears('tiukka', function($bot) { calculate($bot, 40, 0.4); });
 $botman->hears('jekku', function($bot) { calculate($bot, 35, 0.4); });
-$botman->hears('kossu', function($bot) { calculate($bot, 35, 0.4); });
+$botman->hears('kossu', function($bot) { calculate($bot, 38, 0.4); });
+$botman->hears('camparisoda', function($bot) { calculate($bot, 10, 0.98); });
 // also command that can post the stats before hand
 $botman->hears('TILASTO', function($bot) { promilles($bot); });
 
-
 $loop->run();
-
-
