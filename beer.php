@@ -12,8 +12,8 @@ DriverManager::loadDriver(SlackRTMDriver::class);
 
 const MALE = 'M';
 const FEMALE = 'F';
-const GRAMS = 'gr';
-const KILOGRAMS = 'kg';
+const ALC_IN_BLOOD = 'gr';
+const USER_WEIGHT = 'kg';
 
 $loop = Factory::create();
 $botman = BotManFactory::createForRTM([
@@ -36,10 +36,10 @@ function calculate($bot, $pros, $quantity){
   $u = $bot->getUser()->getUsername();
   
   if (!isset($users[$u]["lastupdated"])) { $users[$u]["lastupdated"] = time(); }
-  if (!isset($users[$u][GRAMS])) { $users[$u][GRAMS] = 0; }
+  if (!isset($users[$u][ALC_IN_BLOOD])) { $users[$u][ALC_IN_BLOOD] = 0; }
   
-  $users[$u][GRAMS] += ($pros * $quantity);
-  $bot->reply('Grammoja veressä '.$users[$u][GRAMS]);
+  $users[$u][ALC_IN_BLOOD] += ($pros * $quantity);
+  $bot->reply('Grammoja veressä '.$users[$u][ALC_IN_BLOOD]);
   timeToPostTheStats($bot);
 }
 
@@ -70,19 +70,19 @@ function promilles($bot){
   $stats = array();
   if (!empty($users)) {
     foreach ($users AS $name => $u) {
-      if (isset($u[KILOGRAMS])) {
+      if (isset($u[USER_WEIGHT])) {
         $hours_past = (($now - $u["lastupdated"])/3600);
         $users[$name]["lastupdated"] = time();
         
         $factor = ($u["sex"] == FEMALE) ? WOMAN_FACTOR : 1;
-        $blood = amountOfBlood($u[KILOGRAMS]);
+        $blood = amountOfBlood($u[USER_WEIGHT]);
         // body burns 1 gram of alcohol for every 10 kilos every hour
-        $users[$name][GRAMS] -= ($f*($u[KILOGRAMS]/10)*$hours_past);
+        $users[$name][ALC_IN_BLOOD] -= ($f*($u[USER_WEIGHT]/10)*$hours_past);
         
-        $promills = $u[GRAMS]/$blood/10;
+        $promills = $u[ALC_IN_BLOOD]/$blood/10;
         // user has no grams, dont show his/her result
-        if ($users[$name][GRAMS] < 0) {
-          $users[$name][GRAMS] = 0;
+        if ($users[$name][ALC_IN_BLOOD] < 0) {
+          $users[$name][ALC_IN_BLOOD] = 0;
         } else { // append to array
           $stats[$name] = $promills;
         }
@@ -112,7 +112,7 @@ function promilles($bot){
 $botman->hears('{kg}kg', function($bot, $kg) {
   global $users;
   $u = $bot->getUser()->getUsername();
-  $users[$u][KILOGRAMS] = $kg;
+  $users[$u][USER_WEIGHT] = $kg;
   $bot->reply('Massasi '.$kg." kg");
   timeToPostTheStats($bot);
 });
