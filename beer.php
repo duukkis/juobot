@@ -1,6 +1,6 @@
 <?php
-require 'vendor/autoload.php';
-require 'vars.php';
+require __DIR__.'/vendor/autoload.php';
+require __DIR__.'/vars.php';
 
 use React\EventLoop\Factory;
 use BotMan\BotMan\BotManFactory;
@@ -123,7 +123,7 @@ function promilles($bot)
         $factor = ($u["sex"] == FEMALE) ? WOMAN_FACTOR : 1;
         $blood = amountOfBlood($u[USER_WEIGHT]);
         // body burns 1 gram of alcohol for every 10 kilos every hour
-        $users[$name][ALC_IN_BLOOD] -= ($f*($u[USER_WEIGHT]/10)*$hours_past);
+        $users[$name][ALC_IN_BLOOD] -= ($factor*($u[USER_WEIGHT]/10)*$hours_past);
         
         $promills = $u[ALC_IN_BLOOD]/$blood/10;
         // user has no grams, dont show his/her result
