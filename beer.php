@@ -32,6 +32,9 @@ tiukka
 jekku
 kossu
 juoma {dl} {pros}
+
+TILASTO
+OMA
 ";
 
 $loop = Factory::create();
@@ -129,7 +132,6 @@ function promilles($bot)
         $blood = amountOfBlood($u[USER_WEIGHT], $u[GENDER]);
         // body burns 1 gram of alcohol for every 10 kilos every hour
         $users[$name][ALC_IN_BLOOD] -= (($u[USER_WEIGHT]/10)*$hours_past);
-        print $users[$name][ALC_IN_BLOOD].PHP_EOL;
         
         $promills = round(($u[ALC_IN_BLOOD]/$blood/10),2);
         // user has no grams, dont show his/her result
@@ -157,6 +159,27 @@ function promilles($bot)
     $bot->say('Kukaan ei ole humalassa.', POST_STATS_TO_CHANNEL);    
     // $bot->reply('Kukaan ei ole humalassa.'); // debug
   }
+}
+
+/**
+ * ownStats
+ */
+function ownStats($bot)
+{
+  global $users;
+  $now = time();
+  $name = $bot->getUser()->getUsername();
+  $u = $users[$name];
+  
+  $hours_past = (($now - $u[LAST_CALCD])/3600);
+  $users[$name][LAST_CALCD] = time();
+
+  $blood = amountOfBlood($u[USER_WEIGHT], $u[GENDER]);
+  // body burns 1 gram of alcohol for every 10 kilos every hour
+  $users[$name][ALC_IN_BLOOD] -= (($u[USER_WEIGHT]/10)*$hours_past);
+
+  $promills = round(($u[ALC_IN_BLOOD]/$blood/10),2);
+  $bot->reply('Promillesi '.$promills.'‰');
 }
 
 // The commands
@@ -205,8 +228,7 @@ $botman->hears('jekku', function ($bot) { calculate($bot, 35, 0.4); });
 $botman->hears('kossu', function ($bot) { calculate($bot, 38, 0.4); });
 $botman->hears('camparisoda', function ($bot) { calculate($bot, 10, 0.98); });
 // also command that can post the stats before hand
-$botman->hears('TILASTO', function ($bot) {
-  promilles($bot); 
-});
+$botman->hears('TILASTO', function ($bot) { promilles($bot); });
+$botman->hears('OMA', function ($bot) { ownStats($bot); });
 
 $loop->run();
