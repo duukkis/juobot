@@ -94,10 +94,11 @@ function calculate($bot, $pros, $quantity)
   $now = time();
   $hours_past = (($now - $u[LAST_CALCD])/3600);
   $users[$name][LAST_CALCD] = time();
+  
   $blood = amountOfBlood($u[USER_WEIGHT], $u[GENDER]);
   // body burns 1 gram of alcohol for every 10 kilos every hour
   $users[$name][ALC_IN_BLOOD] -= (($u[USER_WEIGHT]/10)*$hours_past);
-  $promills = floatval($u[ALC_IN_BLOOD]/$blood/10);  
+  $promills = round(($u[ALC_IN_BLOOD]/$blood/10),2);  
   $bot->reply('Grammoja veressä '.$users[$uname][ALC_IN_BLOOD]." promillet ".$promills."‰");
   
   saveUsers();
@@ -142,7 +143,7 @@ function promilles($bot)
         // body burns 1 gram of alcohol for every 10 kilos every hour
         $users[$name][ALC_IN_BLOOD] -= (($u[USER_WEIGHT]/10)*$hours_past);
         
-        $promills = floatval($u[ALC_IN_BLOOD]/$blood/10);
+        $promills = round(($u[ALC_IN_BLOOD]/$blood/10),2);
         // user has no grams, dont show his/her result
         if ($users[$name][ALC_IN_BLOOD] < 0) {
           $users[$name][ALC_IN_BLOOD] = 0;
@@ -159,7 +160,7 @@ function promilles($bot)
       $stat = "";
       arsort($stats);
       foreach ($stats AS $n => $p) {
-        $stat .= $n." ".round($p, 2)."‰\n";
+        $stat .= $n." ".$p."‰\n";
       }
       $bot->say($stat, POST_STATS_TO_CHANNEL);
       // $bot->reply($stat); // debug
