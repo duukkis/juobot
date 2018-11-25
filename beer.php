@@ -77,7 +77,6 @@ function calculate($bot, $pros, $quantity)
 {
   global $users;
   $name = $bot->getUser()->getUsername();
-  $u = $users[$name];
   
   if (!isset($users[$name][LAST_CALCD])) {
     $users[$name][LAST_CALCD] = time();
@@ -86,20 +85,8 @@ function calculate($bot, $pros, $quantity)
     $users[$name][ALC_IN_BLOOD] = 0;
   }
   
-  $users[$name][ALC_IN_BLOOD] += ($pros * $quantity);
-  if($users[$name][ALC_IN_BLOOD] < 0){
-    $users[$name][ALC_IN_BLOOD] = 0;
-  }
-  // update data
-  $now = time();
-  $hours_past = (($now - $u[LAST_CALCD])/3600);
-  $users[$name][LAST_CALCD] = time();
-  
-  $blood = amountOfBlood($u[USER_WEIGHT], $u[GENDER]);
-  // body burns 1 gram of alcohol for every 10 kilos every hour
-  $users[$name][ALC_IN_BLOOD] -= (($u[USER_WEIGHT]/10)*$hours_past);
-  $promills = round(($u[ALC_IN_BLOOD]/$blood/10),2);  
-  $bot->reply('Grammoja veressä '.$users[$uname][ALC_IN_BLOOD]." promillet ".$promills."‰");
+  $users[$name][ALC_IN_BLOOD] = users[$name][ALC_IN_BLOOD] + ($pros * $quantity);
+  $bot->reply('Grammoja veressä '.$users[$uname][ALC_IN_BLOOD]."");
   
   saveUsers();
   timeToPostTheStats($bot);
