@@ -85,8 +85,8 @@ function calculate($bot, $pros, $quantity)
     $users[$name][ALC_IN_BLOOD] = 0;
   }
   
-  $users[$name][ALC_IN_BLOOD] = users[$name][ALC_IN_BLOOD] + ($pros * $quantity);
-  $bot->reply('Grammoja veressä '.$users[$uname][ALC_IN_BLOOD]."");
+  $users[$name][ALC_IN_BLOOD] = $users[$name][ALC_IN_BLOOD] + ($pros * $quantity);
+  $bot->reply('Grammoja veressä '.$users[$name][ALC_IN_BLOOD]."");
   
   saveUsers();
   timeToPostTheStats($bot);
@@ -108,7 +108,7 @@ function timeToPostTheStats($bot) {
  */
 function amountOfBlood($kg, $sex)
 {
-  $factor = ($sex == FEMALE) ? WOMAN_FACTOR : MEN_FACTOR;
+  $factor = ($sex == FEMALE) ? WOMAN_FACTOR : MAN_FACTOR;
   return $factor*$kg;
 }
 
@@ -129,6 +129,7 @@ function promilles($bot)
         $blood = amountOfBlood($u[USER_WEIGHT], $u[GENDER]);
         // body burns 1 gram of alcohol for every 10 kilos every hour
         $users[$name][ALC_IN_BLOOD] -= (($u[USER_WEIGHT]/10)*$hours_past);
+        print $users[$name][ALC_IN_BLOOD].PHP_EOL;
         
         $promills = round(($u[ALC_IN_BLOOD]/$blood/10),2);
         // user has no grams, dont show his/her result
