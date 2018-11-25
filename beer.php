@@ -10,10 +10,14 @@ use BotMan\Drivers\Slack\SlackRTMDriver;
 // Load driver
 DriverManager::loadDriver(SlackRTMDriver::class);
 
+const GENDER = 'sex';
 const MALE = 'M';
 const FEMALE = 'F';
+const MAN_FACTOR = 0.075;
+const WOMAN_FACTOR = 0.065;
 const ALC_IN_BLOOD = 'gr';
 const USER_WEIGHT = 'kg';
+const LAST_CALCD = 'lastcalculated';
 const HELP_TEXT = "Aseta ensin sukupuoli ja massa ja ryhdy juomaan.
 NAINEN
 MIES
@@ -72,17 +76,30 @@ function loadUsers()
 function calculate($bot, $pros, $quantity)
 {
   global $users;
-  $u = $bot->getUser()->getUsername();
+  $name = $bot->getUser()->getUsername();
+  $u = $users[$name];
   
-  if (!isset($users[$u]["lastcalculated"])) {
-    $users[$u]["lastcalculated"] = time();
+  if (!isset($users[$name][LAST_CALCD])) {
+    $users[$name][LAST_CALCD] = time();
   }
-  if (!isset($users[$u][ALC_IN_BLOOD])) {
-    $users[$u][ALC_IN_BLOOD] = 0;
+  if (!isset($users[$name][ALC_IN_BLOOD])) {
+    $users[$name][ALC_IN_BLOOD] = 0;
   }
   
-  $users[$u][ALC_IN_BLOOD] += ($pros * $quantity);
-  $bot->reply('Grammoja veressä '.$users[$u][ALC_IN_BLOOD]);
+  $users[$name][ALC_IN_BLOOD] += ($pros * $quantity);
+  if($users[$name][ALC_IN_BLOOD] < 0){
+    $users[$name][ALC_IN_BLOOD] = 0;
+  }
+  // update data
+  $now = time();
+  $hours_past = (($now - $u[LAST_CALCD])/3600);
+  $users[$name][LAST_CALCD] = time();
+  $blood = amountOfBlood($u[USER_WEIGHT], $u[GENDER]);
+  // body burns 1 gram of alcohol for every 10 kilos every hour
+  $users[$name][ALC_IN_BLOOD] -= (($u[USER_WEIGHT]/10)*$hours_past);
+  $promills = floatval($u[ALC_IN_BLOOD]/$blood/10);  
+  $bot->reply('Grammoja veressä '.$users[$uname][ALC_IN_BLOOD]." promillet ".$promills."‰");
+  
   saveUsers();
   timeToPostTheStats($bot);
 }
@@ -101,9 +118,10 @@ function timeToPostTheStats($bot) {
 /**
  * https://fi.wikipedia.org/wiki/Veri 
  */
-function amountOfBlood($kg)
+function amountOfBlood($kg, $sex)
 {
-  return $kg*0.07;
+  $factor = ($sex == FEMALE) ? WOMAN_FACTOR : MEN_FACTOR;
+  return $factor*$kg;
 }
 
 /**
@@ -116,16 +134,15 @@ function promilles($bot)
   $stats = array();
   if (!empty($users)) {
     foreach ($users AS $name => $u) {
-      if (isset($u[USER_WEIGHT])) {
-        $hours_past = (($now - $u["lastcalculated"])/3600);
-        $users[$name]["lastcalculated"] = time();
+      if (isset($u[USER_WEIGHT]) && $u[USER_WEIGHT] > 0) {
+        $hours_past = (($now - $u[LAST_CALCD])/3600);
+        $users[$name][LAST_CALCD] = time();
         
-        $factor = ($u["sex"] == FEMALE) ? WOMAN_FACTOR : 1;
-        $blood = amountOfBlood($u[USER_WEIGHT]);
+        $blood = amountOfBlood($u[USER_WEIGHT], $u[GENDER]);
         // body burns 1 gram of alcohol for every 10 kilos every hour
-        $users[$name][ALC_IN_BLOOD] -= ($factor*($u[USER_WEIGHT]/10)*$hours_past);
+        $users[$name][ALC_IN_BLOOD] -= (($u[USER_WEIGHT]/10)*$hours_past);
         
-        $promills = $u[ALC_IN_BLOOD]/$blood/10;
+        $promills = floatval($u[ALC_IN_BLOOD]/$blood/10);
         // user has no grams, dont show his/her result
         if ($users[$name][ALC_IN_BLOOD] < 0) {
           $users[$name][ALC_IN_BLOOD] = 0;
@@ -167,8 +184,8 @@ $botman->hears('{kg}kg', function($bot, $kg) {
 $botman->hears('NAINEN', function($bot) {
     global $users;
     $u = $bot->getUser()->getUsername();
-    $users[$u]["sex"] = FEMALE;
-    $bot->reply('Sukupuolesi '.$users[$u]["sex"]);
+    $users[$u][GENDER] = FEMALE;
+    $bot->reply('Sukupuolesi '.$users[$u][GENDER]);
     saveUsers();
     timeToPostTheStats($bot);
 });
@@ -176,8 +193,8 @@ $botman->hears('NAINEN', function($bot) {
 $botman->hears('MIES', function($bot) {
     global $users;
     $u = $bot->getUser()->getUsername();
-    $users[$u]["sex"] = MALE;
-    $bot->reply('Sukupuolesi '.$users[$u]["sex"]);
+    $users[$u][GENDER] = MALE;
+    $bot->reply('Sukupuolesi '.$users[$u][GENDER]);
     saveUsers();
     timeToPostTheStats($bot);
 });
