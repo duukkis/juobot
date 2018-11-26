@@ -132,12 +132,11 @@ function promilles($bot)
         $blood = amountOfBlood($u[USER_WEIGHT], $u[GENDER]);
         // body burns 1 gram of alcohol for every 10 kilos every hour
         $users[$name][ALC_IN_BLOOD] -= (($u[USER_WEIGHT]/10)*$hours_past);
-        
-        $promills = round(($u[ALC_IN_BLOOD]/$blood/10),2);
         // user has no grams, dont show his/her result
         if ($users[$name][ALC_IN_BLOOD] <= 0) {
           $users[$name][ALC_IN_BLOOD] = 0;
         } else { // append to array
+          $promills = round(($u[ALC_IN_BLOOD]/$blood/10),2);
           $stats[$name] = $promills;
         }
       }
@@ -177,9 +176,10 @@ function ownStats($bot)
   $blood = amountOfBlood($u[USER_WEIGHT], $u[GENDER]);
   // body burns 1 gram of alcohol for every 10 kilos every hour
   $users[$name][ALC_IN_BLOOD] -= (($u[USER_WEIGHT]/10)*$hours_past);
-
+  if ($users[$name][ALC_IN_BLOOD] <= 0) {
+    $users[$name][ALC_IN_BLOOD] = 0;
+  }
   saveUsers();
-
   $promills = round(($u[ALC_IN_BLOOD]/$blood/10),2);
   $bot->reply('Promillesi '.$promills.'‰');
 }
