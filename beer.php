@@ -124,7 +124,7 @@ function calculatePromilles($nbr_of_standard_drinks, $kg, $sex, $started)
   $factor = ($sex == FEMALE) ? WOMAN_FACTOR : MAN_FACTOR;
   $metabolism_constant = ($sex == FEMALE) ? WOMAN_METAC : MAN_METAC;
   
-  $promilles = ((0.806 * $nbr_of_standard_drinks * 1.2) / ($factor * $kg)) - ($metabolism_constant * $started);
+  $promilles = (((0.806 * $nbr_of_standard_drinks * 1.2) / ($factor * $kg)) - ($metabolism_constant * $started)) * 10;
   return $promilles;
 }
 
