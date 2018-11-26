@@ -165,7 +165,7 @@ function promilles($bot)
       $stat = "";
       arsort($stats);
       foreach ($stats AS $n => $p) {
-        $stat .= $n." ".$p."‰\n";
+        $stat .= $n." ".round($p,2)."‰\n";
       }
       $bot->say($stat, POST_STATS_TO_CHANNEL);
       // $bot->reply($stat); // debug
@@ -199,7 +199,7 @@ function ownStats($bot)
       $users[$name][NUMBER_OF_STANDARD_DRINKS] = 0;
   }
   saveUsers();
-  $bot->reply('Promillesi '.$promills.'‰');
+  $bot->reply('Promillesi '.round($promills,2).'‰');
 }
 
 // The commands
