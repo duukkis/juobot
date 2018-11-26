@@ -13,9 +13,13 @@ DriverManager::loadDriver(SlackRTMDriver::class);
 const GENDER = 'sex';
 const MALE = 'M';
 const FEMALE = 'F';
-const MAN_FACTOR = 0.075;
-const WOMAN_FACTOR = 0.065;
+const MAN_FACTOR = 0.58;
+const WOMAN_FACTOR = 0.49;
+const MAN_METAC = 0.015;
+const WOMAN_METAC = 0.017;
+
 const ALC_IN_BLOOD = 'gr';
+const NUMBER_OF_STANDARD_DRINKS = 'st';
 const USER_WEIGHT = 'kg';
 const LAST_CALCD = 'lastcalculated';
 const HELP_TEXT = "Aseta ensin sukupuoli ja massa ja ryhdy juomaan.
@@ -81,15 +85,21 @@ function calculate($bot, $pros, $quantity)
   global $users;
   $name = $bot->getUser()->getUsername();
   
-  if (!isset($users[$name][LAST_CALCD])) {
-    $users[$name][LAST_CALCD] = time();
-  }
   if (!isset($users[$name][ALC_IN_BLOOD])) {
     $users[$name][ALC_IN_BLOOD] = 0;
   }
+  if (!isset($users[$name][NUMBER_OF_STANDARD_DRINKS])) {
+    $users[$name][NUMBER_OF_STANDARD_DRINKS] = 0;
+  }
+  // zero the starting time
+  if (!isset($users[$name][LAST_CALCD]) || $users[$name][NUMBER_OF_STANDARD_DRINKS] == 0) {
+    $users[$name][LAST_CALCD] = time();
+  }
   
-  $users[$name][ALC_IN_BLOOD] = $users[$name][ALC_IN_BLOOD] + ($pros * $quantity);
-  $bot->reply('Grammoja veressä '.$users[$name][ALC_IN_BLOOD]."");
+  $users[$name][NUMBER_OF_STANDARD_DRINKS] = $users[$name][NUMBER_OF_STANDARD_DRINKS] + (($pros * $quantity/1.25)/12);
+  $users[$name][ALC_IN_BLOOD] = $users[$name][ALC_IN_BLOOD] + (($pros * $quantity)/1.25);
+  
+  $bot->reply('Annoksia juotu '.round($users[$name][NUMBER_OF_STANDARD_DRINKS],2)."");
   
   saveUsers();
   timeToPostTheStats($bot);
@@ -107,12 +117,15 @@ function timeToPostTheStats($bot) {
 }
 
 /**
- * https://fi.wikipedia.org/wiki/Veri 
+ * https://en.wikipedia.org/wiki/Blood_alcohol_content
  */
-function amountOfBlood($kg, $sex)
+function calculatePromilles($nbr_of_standard_drinks, $kg, $sex, $started)
 {
   $factor = ($sex == FEMALE) ? WOMAN_FACTOR : MAN_FACTOR;
-  return $factor*$kg;
+  $metabolism_constant = ($sex == FEMALE) ? WOMAN_METAC : MAN_METAC;
+  
+  $promilles = ((0.806 * $nbr_of_standard_drinks * 1.2) / ($factor * $kg)) - ($metabolism_constant * $started);
+  return $promilles;
 }
 
 /**
@@ -127,16 +140,19 @@ function promilles($bot)
     foreach ($users AS $name => $u) {
       if (isset($u[USER_WEIGHT]) && $u[USER_WEIGHT] > 0) {
         $hours_past = (($now - $u[LAST_CALCD])/3600);
-        $users[$name][LAST_CALCD] = time();
         
-        $blood = amountOfBlood($u[USER_WEIGHT], $u[GENDER]);
-        // body burns 1 gram of alcohol for every 10 kilos every hour
-        $users[$name][ALC_IN_BLOOD] -= (($u[USER_WEIGHT]/10)*$hours_past);
-        // user has no grams, dont show his/her result
-        if ((int) $users[$name][ALC_IN_BLOOD] <= 0) {
+        $promills = calculatePromilles(
+            $users[$name][NUMBER_OF_STANDARD_DRINKS],
+            $users[$name][USER_WEIGHT],
+            $users[$name][GENDER],
+            $hours_past);
+
+        // user has no grams, dont show his/her result, just update data to 0
+        if ($promills < 0) {
+          $users[$name][LAST_CALCD] = time();
           $users[$name][ALC_IN_BLOOD] = 0;
+          $users[$name][NUMBER_OF_STANDARD_DRINKS] = 0;
         } else { // append to array
-          $promills = round(($u[ALC_IN_BLOOD]/$blood/10),2);
           $stats[$name] = $promills;
         }
       }
@@ -171,16 +187,18 @@ function ownStats($bot)
   $u = $users[$name];
   
   $hours_past = (($now - $u[LAST_CALCD])/3600);
-  $users[$name][LAST_CALCD] = time();
+  $promills = calculatePromilles(
+            $users[$name][NUMBER_OF_STANDARD_DRINKS],
+            $users[$name][USER_WEIGHT],
+            $users[$name][GENDER],
+            $hours_past);
 
-  $blood = amountOfBlood($u[USER_WEIGHT], $u[GENDER]);
-  // body burns 1 gram of alcohol for every 10 kilos every hour
-  $users[$name][ALC_IN_BLOOD] -= (($u[USER_WEIGHT]/10)*$hours_past);
-  if ((int) $users[$name][ALC_IN_BLOOD] <= 0) {
-    $users[$name][ALC_IN_BLOOD] = 0;
+  if ($promills < 0) {
+      $users[$name][LAST_CALCD] = time();
+      $users[$name][ALC_IN_BLOOD] = 0;
+      $users[$name][NUMBER_OF_STANDARD_DRINKS] = 0;
   }
   saveUsers();
-  $promills = round(($u[ALC_IN_BLOOD]/$blood/10),2);
   $bot->reply('Promillesi '.$promills.'‰');
 }
 
