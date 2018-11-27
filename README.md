@@ -28,11 +28,12 @@ Commands
     siideri {dl}
     lonkero {dl}
     viini {cl}
-    tiukka (40%, 4cl)
-    jekku (35%, 4cl)
-    kossu (35%, 4cl)
+    tiukka
+    jekku
+    kossu
     juoma {dl} {pros}
 ```
+tiukka is 4cl of 40%, jekku and kossu are 4cl of 35%, olut, siideri are 4.5%, aolut is 5.2%, lonkero is 5.5%, viini is 12%, juoma can be anything defined by {pros}
 
 - post stats to channel
 ```
