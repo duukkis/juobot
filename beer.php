@@ -78,7 +78,7 @@ function loadUsers()
 }
 
 /**
- * adds grams of alcohol to your blood
+ * calculate number of portions drank
  */
 function calculate($bot, $pros, $quantity)
 {
@@ -112,7 +112,7 @@ function timeToPostTheStats($bot) {
   global $last_tilasto;
   if (time() - $last_tilasto > STAT_RATE) {
     $last_tilasto = time();
-    promilles($bot);
+    promilles($bot, false);
   }
 }
 
@@ -131,7 +131,7 @@ function calculatePromilles($nbr_of_standard_drinks, $kg, $sex, $started)
 /**
  * updates the stats
  */
-function promilles($bot)
+function promilles($bot, $force = false)
 {
   global $users;
   $now = time();
@@ -159,7 +159,9 @@ function promilles($bot)
     }
     saveUsers();
     if (empty($stats)) {
-      $bot->say('Kukaan ei ole humalassa.', POST_STATS_TO_CHANNEL);
+      if ($force) {
+        $bot->say('Kukaan ei ole humalassa.', POST_STATS_TO_CHANNEL);
+      }
       // $bot->reply('Kukaan ei ole humalassa.'); // debug
     } else {
       $stat = "";
@@ -170,7 +172,7 @@ function promilles($bot)
       $bot->say($stat, POST_STATS_TO_CHANNEL);
       // $bot->reply($stat); // debug
     }
-  } else {
+  } else if ($force) {
     $bot->say('Kukaan ei ole humalassa.', POST_STATS_TO_CHANNEL);    
     // $bot->reply('Kukaan ei ole humalassa.'); // debug
   }
@@ -248,7 +250,7 @@ $botman->hears('jekku', function ($bot) { calculate($bot, 35, 0.4); });
 $botman->hears('kossu', function ($bot) { calculate($bot, 38, 0.4); });
 $botman->hears('camparisoda', function ($bot) { calculate($bot, 10, 0.98); });
 // also command that can post the stats before hand
-$botman->hears('TILASTO', function ($bot) { promilles($bot); });
+$botman->hears('TILASTO', function ($bot) { promilles($bot, true); });
 $botman->hears('OMA', function ($bot) { ownStats($bot); });
 
 $loop->run();
