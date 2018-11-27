@@ -199,9 +199,14 @@ function ownStats($bot)
       $users[$name][LAST_CALCD] = time();
       $users[$name][ALC_IN_BLOOD] = 0;
       $users[$name][NUMBER_OF_STANDARD_DRINKS] = 0;
+      $promills = 0;
   }
   saveUsers();
-  $bot->reply('Promillesi '.round($promills,2).'‰');
+  if ($promills == 0) {
+    $bot->reply('Olet selvinpäin.');
+  } else {
+    $bot->reply('Promillesi '.round($promills,2).'‰');
+  }
 }
 
 // The commands
