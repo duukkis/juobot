@@ -12,26 +12,26 @@ The bots calmculates the promilles and writes a local cache file to user_data.tx
 
 Commands
 - set gender with
-NAINEN
-MIES
+    NAINEN
+    MIES
 
 - set weight
-{kg}kg
+    {kg}kg
 
 - start drinking
-olut {dl}
-aolut {dl}
-siideri {dl}
-lonkero {dl}
-viini {cl}
-tiukka (40%, 4cl)
-jekku (35%, 4cl)
-kossu (35%, 4cl)
-juoma {dl} {pros}
+    olut {dl}
+    aolut {dl}
+    siideri {dl}
+    lonkero {dl}
+    viini {cl}
+    tiukka (40%, 4cl)
+    jekku (35%, 4cl)
+    kossu (35%, 4cl)
+    juoma {dl} {pros}
 
 - post stats to channel
-TILASTO
+    TILASTO
 - post promilles to you
-OMA
+    OMA
 - help
-APUA
+    APUA
