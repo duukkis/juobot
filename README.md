@@ -1,5 +1,7 @@
 # juobot
 
+Bot that calculates alcohol promilles and posts the best stats to a defined channel.
+
 - composer install
 - get slack token
 - get channel id, where to post the stats
