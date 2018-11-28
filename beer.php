@@ -40,6 +40,7 @@ juoma {dl} {pros}
 TILASTO
 OMA
 ";
+const NO_ONE_IS_DRUNK = "Kukaan ei ole humalassa.";
 
 $loop = Factory::create();
 $botman = BotManFactory::createForRTM(['slack' => ['token' => SLACK_TOKEN,]], $loop);
@@ -136,6 +137,7 @@ function promilles($bot, $force = false)
   global $users;
   $now = time();
   $stats = array();
+  $someone_was_drunk = isAnyoneDrunk($users);
   if (!empty($users)) {
     foreach ($users AS $name => $u) {
       if (isset($u[USER_WEIGHT]) && $u[USER_WEIGHT] > 0) {
@@ -159,8 +161,8 @@ function promilles($bot, $force = false)
     }
     saveUsers();
     if (empty($stats)) {
-      if ($force) {
-        $bot->say('Kukaan ei ole humalassa.', POST_STATS_TO_CHANNEL);
+      if ($force || $someone_was_drunk) {
+        $bot->say(NO_ONE_IS_DRUNK, POST_STATS_TO_CHANNEL);
       }
       // $bot->reply('Kukaan ei ole humalassa.'); // debug
     } else {
@@ -173,7 +175,7 @@ function promilles($bot, $force = false)
       // $bot->reply($stat); // debug
     }
   } else if ($force) {
-    $bot->say('Kukaan ei ole humalassa.', POST_STATS_TO_CHANNEL);    
+    $bot->say(NO_ONE_IS_DRUNK, POST_STATS_TO_CHANNEL);
     // $bot->reply('Kukaan ei ole humalassa.'); // debug
   }
 }
@@ -207,6 +209,16 @@ function ownStats($bot)
   } else {
     $bot->reply('Promillesi '.round($promills,2).'‰');
   }
+}
+
+function isAnyoneDrunk($users)
+{
+  foreach ($users AS $user) {
+    if (isset($user[ALC_IN_BLOOD]) && $user[ALC_IN_BLOOD] > 0) {
+      return true;
+    }
+  }
+  return false;
 }
 
 // The commands
