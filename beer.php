@@ -49,7 +49,7 @@ $botman = BotManFactory::createForRTM(['slack' => ['token' => SLACK_TOKEN,]], $l
 // sex, kg, gr, lastcalculated
 $users = loadUsers();
 // load from local file
-$last_tilasto = time();
+$last_tilasto = (time() - STAT_RATE);
 
 
 /**
