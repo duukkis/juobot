@@ -17,6 +17,7 @@ const MAN_FACTOR = 0.58;
 const WOMAN_FACTOR = 0.49;
 const MAN_METAC = 0.015;
 const WOMAN_METAC = 0.017;
+const ZERO_WITH_ROUNDING_TOLERANCE = 0.005;
 
 const ALC_IN_BLOOD = 'gr';
 const NUMBER_OF_STANDARD_DRINKS = 'st';
@@ -55,9 +56,8 @@ $last_tilasto = (time() - STAT_RATE);
 /**
  * save local cache file
  */
-function saveUsers()
+function saveUsers($users)
 {
-  global $users;
   file_put_contents(LOCAL_FILE, serialize($users));
 }
 
@@ -102,7 +102,7 @@ function calculate($bot, $pros, $quantity)
   
   $bot->reply('Annoksia juotu '.round($users[$name][NUMBER_OF_STANDARD_DRINKS],2)."");
   
-  saveUsers();
+  saveUsers($users);
   timeToPostTheStats($bot);
 }
 
@@ -150,7 +150,7 @@ function promilles($bot, $force = false)
             $hours_past);
 
         // user has no grams, dont show his/her result, just update data to 0
-        if ($promills < 0) {
+        if ($promills < ZERO_WITH_ROUNDING_TOLERANCE) {
           $users[$name][LAST_CALCD] = time();
           $users[$name][ALC_IN_BLOOD] = 0;
           $users[$name][NUMBER_OF_STANDARD_DRINKS] = 0;
@@ -159,7 +159,7 @@ function promilles($bot, $force = false)
         }
       }
     }
-    saveUsers();
+    saveUsers($users);
     if (empty($stats)) {
       if ($force || $someone_was_drunk) {
         $bot->say(NO_ONE_IS_DRUNK, POST_STATS_TO_CHANNEL);
@@ -203,7 +203,7 @@ function ownStats($bot)
       $users[$name][NUMBER_OF_STANDARD_DRINKS] = 0;
       $promills = 0;
   }
-  saveUsers();
+  saveUsers($users);
   if ($promills == 0) {
     $bot->reply('Olet selvinpäin.');
   } else {
@@ -214,11 +214,21 @@ function ownStats($bot)
 function isAnyoneDrunk($users)
 {
   foreach ($users AS $user) {
-    if (isset($user[ALC_IN_BLOOD]) && $user[ALC_IN_BLOOD] > 0) {
+    if (isset($user[ALC_IN_BLOOD]) && 
+        $user[ALC_IN_BLOOD] > 0) {
       return true;
     }
   }
   return false;
+}
+
+function setGender($bot, $gender)
+{
+  global $users;
+  $u = $bot->getUser()->getUsername();
+  $users[$u][GENDER] = $gender;
+  $bot->reply('Sukupuolesi '.$users[$u][GENDER]);
+  saveUsers($users);
 }
 
 // The commands
@@ -228,30 +238,19 @@ $botman->hears('{kg}kg', function($bot, $kg) {
     $u = $bot->getUser()->getUsername();
     $users[$u][USER_WEIGHT] = (int) $kg;
     $bot->reply('Massasi '.$kg." kg");
-    saveUsers();
+    saveUsers($users);
 //    timeToPostTheStats($bot);
 });
 
 $botman->hears('NAINEN', function($bot) {
-    global $users;
-    $u = $bot->getUser()->getUsername();
-    $users[$u][GENDER] = FEMALE;
-    $bot->reply('Sukupuolesi '.$users[$u][GENDER]);
-    saveUsers();
-//    timeToPostTheStats($bot);
+    $users = setGender($bot, FEMALE);
 });
 
 $botman->hears('MIES', function($bot) {
-    global $users;
-    $u = $bot->getUser()->getUsername();
-    $users[$u][GENDER] = MALE;
-    $bot->reply('Sukupuolesi '.$users[$u][GENDER]);
-    saveUsers();
-//    timeToPostTheStats($bot);
+    $users = setGender($bot, MALE);
 });
 
 $botman->hears('APUA', function($bot) {
-    global $users;
     $bot->reply(HELP_TEXT);
 //    timeToPostTheStats($bot);
 });
