@@ -229,7 +229,7 @@ $botman->hears('{kg}kg', function($bot, $kg) {
     $users[$u][USER_WEIGHT] = (int) $kg;
     $bot->reply('Massasi '.$kg." kg");
     saveUsers();
-    timeToPostTheStats($bot);
+//    timeToPostTheStats($bot);
 });
 
 $botman->hears('NAINEN', function($bot) {
@@ -238,7 +238,7 @@ $botman->hears('NAINEN', function($bot) {
     $users[$u][GENDER] = FEMALE;
     $bot->reply('Sukupuolesi '.$users[$u][GENDER]);
     saveUsers();
-    timeToPostTheStats($bot);
+//    timeToPostTheStats($bot);
 });
 
 $botman->hears('MIES', function($bot) {
@@ -247,13 +247,13 @@ $botman->hears('MIES', function($bot) {
     $users[$u][GENDER] = MALE;
     $bot->reply('Sukupuolesi '.$users[$u][GENDER]);
     saveUsers();
-    timeToPostTheStats($bot);
+//    timeToPostTheStats($bot);
 });
 
 $botman->hears('APUA', function($bot) {
     global $users;
     $bot->reply(HELP_TEXT);
-    timeToPostTheStats($bot);
+//    timeToPostTheStats($bot);
 });
 
 $botman->hears('olut {dl}', function ($bot, $dl) { calculate($bot, 4.5, $dl); });
