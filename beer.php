@@ -17,7 +17,7 @@ const MAN_FACTOR = 0.58;
 const WOMAN_FACTOR = 0.49;
 const MAN_METAC = 0.015;
 const WOMAN_METAC = 0.017;
-const ZERO_WITH_ROUNDING_TOLERANCE = 0.01;
+const ZERO_WITH_ROUNDING_TOLERANCE = 0.005;
 
 const ALC_IN_BLOOD = 'gr';
 const NUMBER_OF_STANDARD_DRINKS = 'st';
@@ -151,7 +151,7 @@ function promilles($bot, $force = false)
             $hours_past);
 
         // user has no grams, dont show his/her result, just update data to 0
-        if ($promills < 0) {
+        if ($promills < ZERO_WITH_ROUNDING_TOLERANCE) {
           $users[$name][LAST_CALCD] = time();
           $users[$name][ALC_IN_BLOOD] = 0;
           $users[$name][NUMBER_OF_STANDARD_DRINKS] = 0;
@@ -216,7 +216,7 @@ function isAnyoneDrunk($users)
 {
   foreach ($users AS $user) {
     if (isset($user[ALC_IN_BLOOD]) && 
-        $user[ALC_IN_BLOOD] > ZERO_WITH_ROUNDING_TOLERANCE) {
+        $user[ALC_IN_BLOOD] > 0) {
       return true;
     }
   }
