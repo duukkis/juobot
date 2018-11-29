@@ -17,6 +17,7 @@ const MAN_FACTOR = 0.58;
 const WOMAN_FACTOR = 0.49;
 const MAN_METAC = 0.015;
 const WOMAN_METAC = 0.017;
+const ZERO_WITH_ROUNDING_TOLERANCE = 0.01;
 
 const ALC_IN_BLOOD = 'gr';
 const NUMBER_OF_STANDARD_DRINKS = 'st';
@@ -214,11 +215,20 @@ function ownStats($bot)
 function isAnyoneDrunk($users)
 {
   foreach ($users AS $user) {
-    if (isset($user[ALC_IN_BLOOD]) && $user[ALC_IN_BLOOD] > 0) {
+    if (isset($user[ALC_IN_BLOOD]) && 
+        $user[ALC_IN_BLOOD] > ZERO_WITH_ROUNDING_TOLERANCE) {
       return true;
     }
   }
   return false;
+}
+
+function setGender($bot, $users, $gender)
+{
+  $u = $bot->getUser()->getUsername();
+  $users[$u][GENDER] = $gender;
+  $bot->reply('Sukupuolesi '.$users[$u][GENDER]);
+  saveUsers();
 }
 
 // The commands
@@ -234,20 +244,12 @@ $botman->hears('{kg}kg', function($bot, $kg) {
 
 $botman->hears('NAINEN', function($bot) {
     global $users;
-    $u = $bot->getUser()->getUsername();
-    $users[$u][GENDER] = FEMALE;
-    $bot->reply('Sukupuolesi '.$users[$u][GENDER]);
-    saveUsers();
-//    timeToPostTheStats($bot);
+    setGender($bot, $users, FEMALE);
 });
 
 $botman->hears('MIES', function($bot) {
     global $users;
-    $u = $bot->getUser()->getUsername();
-    $users[$u][GENDER] = MALE;
-    $bot->reply('Sukupuolesi '.$users[$u][GENDER]);
-    saveUsers();
-//    timeToPostTheStats($bot);
+    setGender($bot, $users, MALE);
 });
 
 $botman->hears('APUA', function($bot) {
