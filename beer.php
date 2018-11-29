@@ -229,6 +229,7 @@ function setGender($bot, $users, $gender)
   $users[$u][GENDER] = $gender;
   $bot->reply('Sukupuolesi '.$users[$u][GENDER]);
   saveUsers();
+  return $users;
 }
 
 // The commands
@@ -244,12 +245,12 @@ $botman->hears('{kg}kg', function($bot, $kg) {
 
 $botman->hears('NAINEN', function($bot) {
     global $users;
-    setGender($bot, $users, FEMALE);
+    $users = setGender($bot, $users, FEMALE);
 });
 
 $botman->hears('MIES', function($bot) {
     global $users;
-    setGender($bot, $users, MALE);
+    $users = setGender($bot, $users, MALE);
 });
 
 $botman->hears('APUA', function($bot) {
