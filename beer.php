@@ -86,6 +86,16 @@ function calculate($bot, $pros, $quantity)
   global $users;
   $name = $bot->getUser()->getUsername();
   
+  if (!isset($users[$name][USER_WEIGHT])) {
+    $bot->reply('Aseta massasi käyttäen `{kg}kg`-komentoa.');
+    return;
+  }
+
+  if (!isset($users[$name][GENDER])) {
+    $bot->reply('Aseta sukupuolesi käyttäen `NAINEN`- tai `MIES`-komentoa.');
+    return;
+  }
+
   if (!isset($users[$name][ALC_IN_BLOOD])) {
     $users[$name][ALC_IN_BLOOD] = 0;
   }
