@@ -113,7 +113,7 @@ function calculate($bot, $pros, $quantity)
   $bot->reply('Annoksia juotu '.round($users[$name][NUMBER_OF_STANDARD_DRINKS],2)."");
   
   saveUsers($users);
-  timeToPostTheStats($bot);
+  // timeToPostTheStats($bot);
 }
 
 /**
