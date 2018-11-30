@@ -176,13 +176,7 @@ function promilles($bot, $force = false)
       }
       // $bot->reply('Kukaan ei ole humalassa.'); // debug
     } else {
-      $stat = "";
-      arsort($stats);
-      foreach ($stats AS $n => $p) {
-        $stat .= $n." ".round($p,2)."‰\n";
-      }
-      $bot->say($stat, POST_STATS_TO_CHANNEL);
-      // $bot->reply($stat); // debug
+      statsToChannel($stats, $bot);
     }
   } else if ($force) {
     $bot->say(NO_ONE_IS_DRUNK, POST_STATS_TO_CHANNEL);
@@ -239,6 +233,28 @@ function setGender($bot, $gender)
   $users[$u][GENDER] = $gender;
   $bot->reply('Sukupuolesi '.$users[$u][GENDER]);
   saveUsers($users);
+}
+
+function statsToChannel($stats, $bot)
+{
+  $stat = "";
+  arsort($stats);
+  foreach ($stats AS $n => $p) {
+    $stat .= formatDrunkRow($n, $p);
+  }
+  $bot->say($stat, POST_STATS_TO_CHANNEL);
+}
+
+function formatDrunkRow($name, $promilles)
+{
+  $statisticRow = $name." ".round($promilles, 2)."‰";
+
+  if ($promilles >= 1.0) {
+    // Yes, I know this should be configurable but this is not configurable.
+    $statisticRow .= " :during-work:";
+  }
+
+  return $statisticRow."\n";
 }
 
 // The commands
