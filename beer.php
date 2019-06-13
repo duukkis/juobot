@@ -106,7 +106,7 @@ function calculate($bot, $pros, $quantity)
   if (!isset($users[$name][LAST_CALCD]) || $users[$name][NUMBER_OF_STANDARD_DRINKS] == 0) {
     $users[$name][LAST_CALCD] = time();
   }
-  
+  $quantity = str_replace(',', '.', $quantity);
   $users[$name][NUMBER_OF_STANDARD_DRINKS] = $users[$name][NUMBER_OF_STANDARD_DRINKS] + (($pros * $quantity/1.25)/12);
   $users[$name][ALC_IN_BLOOD] = $users[$name][ALC_IN_BLOOD] + (($pros * $quantity)/1.25);
   
@@ -134,7 +134,9 @@ function calculatePromilles($nbr_of_standard_drinks, $kg, $sex, $started)
 {
   $factor = ($sex == FEMALE) ? WOMAN_FACTOR : MAN_FACTOR;
   $metabolism_constant = ($sex == FEMALE) ? WOMAN_METAC : MAN_METAC;
-  
+  if ($kg == 0) {
+    return 0;
+  }
   $promilles = (((0.806 * $nbr_of_standard_drinks * 1.2) / ($factor * $kg)) - ($metabolism_constant * $started)) * 10;
   return $promilles;
 }
