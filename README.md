@@ -12,7 +12,14 @@ Bot that calculates alcohol promilles and posts the best stats to a defined chan
 
 The bots calmculates the promilles and writes a local cache file to user_data.txt or what is defined as LOCAL_FILE.
 
-Commands
+# Running this in production
+
+1. install supervisord [http://supervisord.org]
+2. make it run ``` php beer.php ```
+3. run detect_deploy.sh file on crontab. It will kill php process and make a pull on changes in repo and supervisord will make lift the process up again.
+
+# Commands
+
 - set gender with
 ```
     NAINEN
