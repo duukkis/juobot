@@ -174,14 +174,14 @@ function promilles($bot, $force = false)
     saveUsers($users);
     if (empty($stats)) {
       if ($force || $someone_was_drunk) {
-        $bot->say(NO_ONE_IS_DRUNK, POST_STATS_TO_CHANNEL);
+        $bot->reply(NO_ONE_IS_DRUNK);
       }
       // $bot->reply('Kukaan ei ole humalassa.'); // debug
     } else {
       statsToChannel($stats, $bot);
     }
   } else if ($force) {
-    $bot->say(NO_ONE_IS_DRUNK, POST_STATS_TO_CHANNEL);
+    $bot->reply(NO_ONE_IS_DRUNK);
     // $bot->reply('Kukaan ei ole humalassa.'); // debug
   }
 }
@@ -244,7 +244,7 @@ function statsToChannel($stats, $bot)
   foreach ($stats AS $n => $p) {
     $stat .= formatDrunkRow($n, $p);
   }
-  $bot->say($stat, POST_STATS_TO_CHANNEL);
+  $bot->reply($stat);
 }
 
 function formatDrunkRow($name, $promilles)
