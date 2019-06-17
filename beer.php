@@ -162,7 +162,7 @@ function promilles($bot, $force = false)
             $hours_past);
 
         // user has no grams, dont show his/her result, just update data to 0
-        if ($promills < ZERO_WITH_ROUNDING_TOLERANCE || is_infinite($promills)) {
+        if ($promills < ZERO_WITH_ROUNDING_TOLERANCE || is_infinite($promills) || $promills > 30) {
           $users[$name][LAST_CALCD] = time();
           $users[$name][ALC_IN_BLOOD] = 0;
           $users[$name][NUMBER_OF_STANDARD_DRINKS] = 0;
