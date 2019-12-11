@@ -23,7 +23,8 @@ const ALC_IN_BLOOD = 'gr';
 const NUMBER_OF_STANDARD_DRINKS = 'st';
 const USER_WEIGHT = 'kg';
 const LAST_CALCD = 'lastcalculated';
-const HELP_TEXT = "Aseta ensin sukupuoli ja massa ja ryhdy juomaan.
+const HELP_TEXT = "Aseta ensin sukupuoli ja massa (erillisillä komennoilla) ja ryhdy juomaan.
+Komennot:
 NAINEN
 MIES
 {kg}kg
