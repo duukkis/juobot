@@ -153,7 +153,10 @@ function promilles($bot, $force = false)
   $someone_was_drunk = isAnyoneDrunk($users);
   if (!empty($users)) {
     foreach ($users AS $name => $u) {
-      if (isset($u[USER_WEIGHT]) && $u[USER_WEIGHT] > 0) {
+      if (isset($u[USER_WEIGHT]) && $u[USER_WEIGHT] > 0 && isset($u[GENDER]) && isset($u[NUMBER_OF_STANDARD_DRINKS])) {
+        if (!isset($u[LAST_CALCD])) {
+          $u[LAST_CALCD] = time();
+        }
         $hours_past = (($now - $u[LAST_CALCD])/3600);
         
         $promills = calculatePromilles(
@@ -196,7 +199,9 @@ function ownStats($bot)
   $now = time();
   $name = $bot->getUser()->getUsername();
   $u = $users[$name];
-  
+  if (!isset($u[LAST_CALCD])) {
+    $u[LAST_CALCD] = time();
+  }
   $hours_past = (($now - $u[LAST_CALCD])/3600);
   $promills = calculatePromilles(
             $users[$name][NUMBER_OF_STANDARD_DRINKS],
