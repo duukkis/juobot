@@ -32,7 +32,7 @@ MIES
 olut {dl}
 tuopponen {dl}
 kaleksi {dl}
-kaljanteri suuri {dl}
+kaleksanteri suuri {dl}
 aolut {dl}
 siideri {dl}
 lonkero {dl}
@@ -296,7 +296,7 @@ $botman->hears('APUA', function($bot) {
 $botman->hears('olut {dl}', function ($bot, $dl) { calculate($bot, 4.5, $dl); });
 $botman->hears('tuopponen {dl}', function ($bot, $dl) { calculate($bot, 4.5, $dl); });
 $botman->hears('kaleksi {dl}', function ($bot, $dl) { calculate($bot, 4.5, $dl); });
-$botman->hears('kaljanteri suuri {dl}', function ($bot, $dl) { calculate($bot, 4.5, $dl); });
+$botman->hears('kaleksanteri suuri {dl}', function ($bot, $dl) { calculate($bot, 4.5, $dl); });
 $botman->hears('aolut {dl}', function ($bot, $dl) { calculate($bot, 5.2, $dl); });
 $botman->hears('siideri {dl}', function ($bot, $dl) { calculate($bot, 4.5, $dl); });
 $botman->hears('lonkero {dl}', function ($bot, $dl) { calculate($bot, 5.5, $dl); });
