@@ -30,6 +30,9 @@ MIES
 {kg}kg
 
 olut {dl}
+tuopponen {dl}
+kaleksi {dl}
+kaljanteri suuri {dl}
 aolut {dl}
 siideri {dl}
 lonkero {dl}
@@ -37,6 +40,7 @@ viini {cl}
 tiukka
 jekku
 kossu
+jallu
 juoma {dl} {pros}
 
 TILASTO
@@ -290,6 +294,9 @@ $botman->hears('APUA', function($bot) {
 });
 
 $botman->hears('olut {dl}', function ($bot, $dl) { calculate($bot, 4.5, $dl); });
+$botman->hears('tuopponen {dl}', function ($bot, $dl) { calculate($bot, 4.5, $dl); });
+$botman->hears('kaleksi {dl}', function ($bot, $dl) { calculate($bot, 4.5, $dl); });
+$botman->hears('kaljanteri suuri {dl}', function ($bot, $dl) { calculate($bot, 4.5, $dl); });
 $botman->hears('aolut {dl}', function ($bot, $dl) { calculate($bot, 5.2, $dl); });
 $botman->hears('siideri {dl}', function ($bot, $dl) { calculate($bot, 4.5, $dl); });
 $botman->hears('lonkero {dl}', function ($bot, $dl) { calculate($bot, 5.5, $dl); });
@@ -298,6 +305,7 @@ $botman->hears('viini {cl}', function ($bot, $cl) { calculate($bot, 12, ($cl/10)
 $botman->hears('tiukka', function ($bot) { calculate($bot, 40, 0.4); });
 $botman->hears('jekku', function ($bot) { calculate($bot, 35, 0.4); });
 $botman->hears('kossu', function ($bot) { calculate($bot, 38, 0.4); });
+$botman->hears('jallu', function ($bot) { calculate($bot, 38, 0.4); });
 $botman->hears('camparisoda', function ($bot) { calculate($bot, 10, 0.98); });
 // also command that can post the stats before hand
 $botman->hears('TILASTO', function ($bot) { promilles($bot, true); });
